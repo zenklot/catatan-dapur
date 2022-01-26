@@ -20,8 +20,11 @@ func main() {
 	bahanService := service.NewBahanService(bahanRepository, db, validate)
 	bahanController := controller.NewBahanController(bahanService)
 
-	router := routes.BahanRouter(bahanController)
+	kategoriRepository := repository.NewKategoriRepository()
+	kategoriService := service.NewKategoriService(kategoriRepository, db, validate)
+	kategoriController := controller.NewKategoriController(kategoriService)
 
+	router := routes.NewRouter(bahanController, kategoriController)
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: router,

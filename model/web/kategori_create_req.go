@@ -1,5 +1,5 @@
 package web
 
 type KategoriCreateRequest struct {
-	Kategori string `json:"kateogri"`
+	Kategori string `json:"kategori"`
 }

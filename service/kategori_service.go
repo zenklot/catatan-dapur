@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/zenklot/catatan-dapur/model/domain"
 	"github.com/zenklot/catatan-dapur/model/web"
 	"github.com/zenklot/catatan-dapur/repository"
 	"gorm.io/gorm"
@@ -21,7 +22,7 @@ type KategoriServiceImpl struct {
 	Validate   *validator.Validate
 }
 
-func NewKategoriServiceImpl(repository repository.KategoriRepository, db *gorm.DB, validate *validator.Validate) *KategoriServiceImpl {
+func NewKategoriService(repository repository.KategoriRepository, db *gorm.DB, validate *validator.Validate) *KategoriServiceImpl {
 	return &KategoriServiceImpl{
 		Repository: repository,
 		DB:         db,
@@ -30,21 +31,126 @@ func NewKategoriServiceImpl(repository repository.KategoriRepository, db *gorm.D
 }
 
 func (service *KategoriServiceImpl) Create(request web.KategoriCreateRequest) web.KategoriResponse {
-	panic("not implemented") // TODO: Implement
+	if err := service.Validate.Struct(request); err != nil {
+		panic(err)
+	}
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	kategori := domain.Kategori{
+		Kategori: request.Kategori,
+	}
+
+	kategori = service.Repository.Save(tx, kategori)
+	return web.KategoriResponse{
+		Id:       kategori.Id,
+		Kategori: kategori.Kategori,
+	}
+
 }
 
 func (service *KategoriServiceImpl) Update(request web.KategoriUpdateRequest) web.KategoriResponse {
-	panic("not implemented") // TODO: Implement
+	if err := service.Validate.Struct(request); err != nil {
+		panic(err)
+	}
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	kategori := domain.Kategori{
+		Kategori: request.Kategori,
+	}
+
+	kategori = service.Repository.Update(tx, kategori)
+	return web.KategoriResponse{
+		Id:       kategori.Id,
+		Kategori: kategori.Kategori,
+	}
 }
 
 func (service *KategoriServiceImpl) Delete(kategoriId int) {
-	panic("not implemented") // TODO: Implement
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	kategori := domain.Kategori{
+		Id: kategoriId,
+	}
+
+	service.Repository.Delete(tx, kategori)
+
 }
 
 func (service *KategoriServiceImpl) FindById(kategoriId int) web.KategoriResponse {
-	panic("not implemented") // TODO: Implement
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	kategori := domain.Kategori{
+		Id: kategoriId,
+	}
+
+	kategori = service.Repository.Save(tx, kategori)
+	return web.KategoriResponse{
+		Id:       kategori.Id,
+		Kategori: kategori.Kategori,
+	}
 }
 
 func (service *KategoriServiceImpl) FindAll() []web.KategoriResponse {
-	panic("not implemented") // TODO: Implement
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	kategories := service.Repository.FindAll(tx)
+	var kategoriResponse []web.KategoriResponse
+	for _, kategori := range kategories {
+		kategoriResponse = append(kategoriResponse, web.KategoriResponse{
+			Id:       kategori.Id,
+			Kategori: kategori.Kategori,
+		})
+	}
+
+	return kategoriResponse
 }
