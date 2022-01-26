@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/zenklot/catatan-dapur/model/domain"
 	"gorm.io/gorm"
 )
@@ -36,15 +38,48 @@ func (repository *BahanRepositoryImpl) Save(tx *gorm.DB, bahan domain.Bahan) dom
 }
 
 func (repository *BahanRepositoryImpl) Update(tx *gorm.DB, bahan domain.Bahan) domain.Bahan {
-	panic("not implemented") // TODO: Implement
+	if err := tx.Error; err != nil {
+		panic(err)
+	}
+
+	result := tx.Save(&bahan)
+
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	return bahan
 }
 
 func (repository *BahanRepositoryImpl) Delete(tx *gorm.DB, bahan domain.Bahan) {
-	panic("not implemented") // TODO: Implement
+	if err := tx.Error; err != nil {
+		panic(err)
+	}
+
+	result := tx.Delete(&bahan)
+
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
 }
 
 func (repository *BahanRepositoryImpl) FindById(tx *gorm.DB, bahanId int) (domain.Bahan, error) {
-	panic("not implemented") // TODO: Implement
+	if err := tx.Error; err != nil {
+		panic(err)
+	}
+
+	bahan := domain.Bahan{}
+	result := tx.Where("id = ?", bahanId).First(&bahan)
+
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return bahan, errors.New("Id Bahan Tidak Ditemukan")
+	} else {
+		return bahan, nil
+	}
 }
 
 func (repository *BahanRepositoryImpl) FindAll(tx *gorm.DB) []domain.Bahan {

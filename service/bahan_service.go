@@ -58,15 +58,73 @@ func (service *BahanServiceImpl) Create(request web.BahanCreateRequest) web.Baha
 }
 
 func (service *BahanServiceImpl) Update(request web.BahanUpdateRequest) web.BahanResponse {
-	panic("not implemented") // TODO: Implement
+	if err := service.Validate.Struct(request); err != nil {
+		panic(err)
+	}
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	bahan := domain.Bahan{
+		Id:    request.Id,
+		Bahan: request.Bahan,
+	}
+
+	bahan = service.BahanRepository.Update(tx, bahan)
+	return web.BahanResponse{
+		Id:    bahan.Id,
+		Bahan: bahan.Bahan,
+	}
+
 }
 
 func (service *BahanServiceImpl) Delete(bahanId int) {
-	panic("not implemented") // TODO: Implement
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	bahan, _ := service.BahanRepository.FindById(tx, bahanId)
+	// Proses Error
+
+	service.BahanRepository.Delete(tx, bahan)
+
 }
 
 func (service *BahanServiceImpl) FindById(bahanId int) web.BahanResponse {
-	panic("not implemented") // TODO: Implement
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	bahan, _ := service.BahanRepository.FindById(tx, bahanId)
+	// Proses error
+
+	return web.BahanResponse{
+		Id:    bahan.Id,
+		Bahan: bahan.Bahan,
+	}
 }
 
 func (service *BahanServiceImpl) FindAll() []web.BahanResponse {
