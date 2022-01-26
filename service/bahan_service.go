@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/zenklot/catatan-dapur/app/exception"
 	"github.com/zenklot/catatan-dapur/model/domain"
 	"github.com/zenklot/catatan-dapur/model/web"
 	"github.com/zenklot/catatan-dapur/repository"
@@ -98,8 +99,10 @@ func (service *BahanServiceImpl) Delete(bahanId int) {
 		}
 	}()
 
-	bahan, _ := service.BahanRepository.FindById(tx, bahanId)
-	// Proses Error
+	bahan, err := service.BahanRepository.FindById(tx, bahanId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	service.BahanRepository.Delete(tx, bahan)
 
@@ -118,8 +121,10 @@ func (service *BahanServiceImpl) FindById(bahanId int) web.BahanResponse {
 		}
 	}()
 
-	bahan, _ := service.BahanRepository.FindById(tx, bahanId)
-	// Proses error
+	bahan, err := service.BahanRepository.FindById(tx, bahanId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	return web.BahanResponse{
 		Id:    bahan.Id,
