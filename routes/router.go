@@ -21,9 +21,23 @@ func NewRouter(bahanController controller.BahanController, kategoriController co
 	router.POST("/api/kategori", kategoriController.Create)
 	router.PUT("/api/kategori", kategoriController.Update)
 
+	router.GET("/reseps", resepController.Index)
 	router.POST("/api/resep", resepController.Create)
 	router.GET("/api/reseps", resepController.FindAll)
 	router.GET("/api/resep/:resepId", resepController.FindById)
+	router.PanicHandler = exception.ErrorHandler
+
+	return router
+}
+
+func BahanRouter(bahanController controller.BahanController) *httprouter.Router {
+	router := httprouter.New()
+
+	router.GET("/api/bahans", bahanController.FindAll)
+	router.GET("/api/bahan/:bahanId", bahanController.FindById)
+	router.DELETE("/api/bahan/:bahanId", bahanController.Delete)
+	router.POST("/api/bahan", bahanController.Create)
+	router.PUT("/api/bahan", bahanController.Update)
 	router.PanicHandler = exception.ErrorHandler
 
 	return router

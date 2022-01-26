@@ -76,6 +76,7 @@ func (service *KategoriServiceImpl) Update(request web.KategoriUpdateRequest) we
 	}()
 
 	kategori := domain.Kategori{
+		Id:       request.Id,
 		Kategori: request.Kategori,
 	}
 

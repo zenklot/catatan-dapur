@@ -1,0 +1,218 @@
+{
+    "openapi":"3.0.2",
+    "info": {
+      "title":"Catatan Dapur RESTful API",
+      "description":"API Spec for Catatan Dapur (Kategori Makanan) RESTful API",
+      "version":"1.0"
+    },
+    "servers": [
+      {"url":"https://localhost:3000/api"}
+    ],
+    "components": {
+        "schemas": {
+            "Kategori": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "kategori": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CreateKategori": {
+                "type": "object",
+                "properties": {
+                    "kategori": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/kategories": {
+            "get": {
+                "description": "List Seluruh Kategori Makanan",
+                "summary": "List Seluruh Kategori Makanan",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success get all kategory",
+                        "content": {
+                            "application/json" :{
+                                "schema":{
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Kategori"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/kategori/{kategoriId}": {
+            "get": {
+                "description": "Cari kategori berdasarkan ID",
+                "summary": "Cari kategori berdasarkan ID",
+                "parameters": [{
+                    "name": "kategoriId",
+                    "in": "path",
+                    "description": "kategori Id",
+                    "schema":{
+                        "type": "integer"
+                    },
+                    "required": true
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Success get kategori",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Kategori"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete":{
+                "summary": "Hapus kategori berdasarkan ID",
+                "description": "Hapus kategori berdasarkan ID",
+                "parameters": [
+                    {
+                        "name": "kategoriId",
+                        "in": "path",
+                        "description": "Id kategori",
+                        "schema":{
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success delete Kategory",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/kategori": {
+            "post": {
+                "description": "Tambah Kategori Makanan Baru",
+                "summary": "Tambah Kategori Makanan Baru",
+                "parameters": [],
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref":  "#/components/schemas/CreateKategori"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Sukses menambahkan Kategori",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Kategori"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put":{
+                "description": "Update Kategori Makanan",
+                "summary": "Update Kategori Makanan",
+                "parameters": [],
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref":  "#/components/schemas/Kategori"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sukses Mengupdate Kategori",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Kategori"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+  }

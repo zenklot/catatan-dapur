@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -10,6 +11,7 @@ import (
 )
 
 type ResepController interface {
+	Index(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	FindById(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
@@ -23,6 +25,14 @@ func NewResepController(resepService service.ResepService) *ResepControllerImpl 
 	return &ResepControllerImpl{
 		ResepService: resepService,
 	}
+}
+
+func (controller *ResepControllerImpl) Index(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	t := template.Must(template.ParseFiles("./views/resep.gohtml"))
+
+	resepResponse := controller.ResepService.FindAll()
+
+	t.ExecuteTemplate(writer, "resep.gohtml", resepResponse)
 }
 
 func (controller *ResepControllerImpl) Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
