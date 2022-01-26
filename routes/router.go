@@ -19,3 +19,17 @@ func BahanRouter(bahanController controller.BahanController) *httprouter.Router 
 
 	return router
 }
+
+func KategoriRouter(kategoriController controller.KategoriController) *httprouter.Router {
+	router := httprouter.New()
+
+	router.GET("/api/kategories", kategoriController.FindAll)
+	router.GET("/api/kategori/:kategoriId", kategoriController.FindById)
+	router.DELETE("/api/kategori/:kategoriId", kategoriController.Delete)
+	router.POST("/api/kategori", kategoriController.Create)
+	router.PUT("/api/kategori", kategoriController.Update)
+
+	router.PanicHandler = exception.ErrorHandler
+
+	return router
+}
