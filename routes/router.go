@@ -6,7 +6,7 @@ import (
 	"github.com/zenklot/catatan-dapur/controller"
 )
 
-func NewRouter(bahanController controller.BahanController, kategoriController controller.KategoriController) *httprouter.Router {
+func NewRouter(bahanController controller.BahanController, kategoriController controller.KategoriController, resepController controller.ResepController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/api/bahans", bahanController.FindAll)
@@ -21,6 +21,9 @@ func NewRouter(bahanController controller.BahanController, kategoriController co
 	router.POST("/api/kategori", kategoriController.Create)
 	router.PUT("/api/kategori", kategoriController.Update)
 
+	router.POST("/api/resep", resepController.Create)
+	router.GET("/api/reseps", resepController.FindAll)
+	router.GET("/api/resep/:resepId", resepController.FindById)
 	router.PanicHandler = exception.ErrorHandler
 
 	return router

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/zenklot/catatan-dapur/app/exception"
 	"github.com/zenklot/catatan-dapur/model/domain"
 	"github.com/zenklot/catatan-dapur/model/web"
 	"github.com/zenklot/catatan-dapur/repository"
@@ -119,11 +120,11 @@ func (service *KategoriServiceImpl) FindById(kategoriId int) web.KategoriRespons
 		}
 	}()
 
-	kategori := domain.Kategori{
-		Id: kategoriId,
+	kategori, err := service.Repository.FindById(tx, kategoriId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	kategori = service.Repository.Save(tx, kategori)
 	return web.KategoriResponse{
 		Id:       kategori.Id,
 		Kategori: kategori.Kategori,

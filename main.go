@@ -24,7 +24,11 @@ func main() {
 	kategoriService := service.NewKategoriService(kategoriRepository, db, validate)
 	kategoriController := controller.NewKategoriController(kategoriService)
 
-	router := routes.NewRouter(bahanController, kategoriController)
+	resepRepository := repository.NewResepRepository()
+	resepService := service.NewResepService(resepRepository, db, validate)
+	resepController := controller.NewResepController(resepService)
+
+	router := routes.NewRouter(bahanController, kategoriController, resepController)
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: router,
