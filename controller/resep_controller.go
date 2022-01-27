@@ -12,7 +12,10 @@ import (
 
 type ResepController interface {
 	Index(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	Show(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	FindById(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 }
@@ -29,10 +32,16 @@ func NewResepController(resepService service.ResepService) *ResepControllerImpl 
 
 func (controller *ResepControllerImpl) Index(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	t := template.Must(template.ParseFiles("./views/resep.gohtml"))
-
 	resepResponse := controller.ResepService.FindAll()
-
 	t.ExecuteTemplate(writer, "resep.gohtml", resepResponse)
+}
+
+func (controller *ResepControllerImpl) Show(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	resepId := params.ByName("resepId")
+
+	t := template.Must(template.ParseFiles("./views/detail.gohtml"))
+	resepResponse := controller.ResepService.FindById(resepId)
+	t.ExecuteTemplate(writer, "detail.gohtml", resepResponse)
 }
 
 func (controller *ResepControllerImpl) Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -57,6 +66,28 @@ func (controller *ResepControllerImpl) Create(writer http.ResponseWriter, reques
 	}
 }
 
+func (controller *ResepControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	resepUpdateRequest := web.ResepUpdateRequest{}
+	decoder := json.NewDecoder(request.Body)
+	if err := decoder.Decode(&resepUpdateRequest); err != nil {
+		panic(err)
+	}
+
+	resepResponse := controller.ResepService.Update(resepUpdateRequest)
+
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   resepResponse,
+	}
+
+	writer.Header().Add("Content-Type", "application/json")
+	encoder := json.NewEncoder(writer)
+	if err := encoder.Encode(webResponse); err != nil {
+		panic(err)
+	}
+}
+
 func (controller *ResepControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	resepResponse := controller.ResepService.FindAll()
 
@@ -64,6 +95,21 @@ func (controller *ResepControllerImpl) FindAll(writer http.ResponseWriter, reque
 		Code:   200,
 		Status: "OK",
 		Data:   resepResponse,
+	}
+
+	writer.Header().Add("Content-Type", "application/json")
+	encoder := json.NewEncoder(writer)
+	if err := encoder.Encode(webResponse); err != nil {
+		panic(err)
+	}
+}
+
+func (controller *ResepControllerImpl) Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	resepId := params.ByName("resepId")
+	controller.ResepService.Delete(resepId)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
 	}
 
 	writer.Header().Add("Content-Type", "application/json")

@@ -46,7 +46,9 @@ func setupRouter(db *gorm.DB) *httprouter.Router {
 func TestCreateBahanSuccess(t *testing.T) {
 	db := setupTestDB()
 	router := setupRouter(db)
-
+	tx := db.Begin()
+	tx.Exec("DELETE FROM bahans")
+	tx.Commit()
 	requestBody := strings.NewReader(`{"bahan" : "Terigu"}`)
 	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/bahan", requestBody)
 	request.Header.Add("Content-Type", "application/json")
@@ -93,6 +95,8 @@ func TestDeleteBahanSuccess(t *testing.T) {
 	db := setupTestDB()
 
 	tx := db.Begin()
+	tx.Exec("DELETE FROM bahans")
+
 	bahanRepository := repository.NewBahanRepository()
 	bahan := bahanRepository.Save(tx, domain.Bahan{
 		Bahan: "Terigu",
@@ -117,4 +121,71 @@ func TestDeleteBahanSuccess(t *testing.T) {
 
 	assert.Equal(t, 200, int(responseBody["code"].(float64)))
 	assert.Equal(t, "OK", responseBody["status"])
+}
+
+func TestDeleteBahanFailed(t *testing.T) {
+	db := setupTestDB()
+	router := setupRouter(db)
+
+	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/bahan/404", nil)
+	request.Header.Add("Content-Type", "application/json")
+
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+
+	response := recorder.Result()
+	assert.Equal(t, 404, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+
+	assert.Equal(t, 404, int(responseBody["code"].(float64)))
+	assert.Equal(t, "NOT FOUND", responseBody["status"])
+}
+
+func TestListBahanSuccess(t *testing.T) {
+	db := setupTestDB()
+	tx := db.Begin()
+	tx.Exec("DELETE FROM bahans")
+	bahanRepository := repository.NewBahanRepository()
+	bahan1 := bahanRepository.Save(tx, domain.Bahan{
+		Bahan: "Minyak Secukupnya",
+	})
+	bahan2 := bahanRepository.Save(tx, domain.Bahan{
+		Bahan: "Garam Secukupnya",
+	})
+	tx.Commit()
+
+	router := setupRouter(db)
+
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/bahans", nil)
+
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+
+	response := recorder.Result()
+	assert.Equal(t, 200, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+
+	assert.Equal(t, 200, int(responseBody["code"].(float64)))
+	assert.Equal(t, "OK", responseBody["status"])
+
+	fmt.Println(responseBody)
+
+	var bahans = responseBody["data"].([]interface{})
+
+	bahanResponse1 := bahans[0].(map[string]interface{})
+	bahanResponse2 := bahans[1].(map[string]interface{})
+
+	assert.Equal(t, bahan1.Id, int(bahanResponse1["id"].(float64)))
+	assert.Equal(t, bahan1.Bahan, bahanResponse1["bahan"])
+
+	assert.Equal(t, bahan2.Id, int(bahanResponse2["id"].(float64)))
+	assert.Equal(t, bahan2.Bahan, bahanResponse2["bahan"])
 }

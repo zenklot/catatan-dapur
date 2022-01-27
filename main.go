@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -33,6 +34,7 @@ func main() {
 		Addr:    "localhost:3000",
 		Handler: router,
 	}
+	fmt.Println("Server Started at http://localhost:3000")
 
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)

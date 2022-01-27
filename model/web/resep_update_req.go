@@ -1,7 +1,8 @@
 package web
 
 type ResepUpdateRequest struct {
-	Id         int    `json:"id"`
-	Resep      string `json:"resep"`
-	IdKategori int    `json:"id_kategori"`
+	Id       string `json:"id"`
+	Resep    string `json:"resep"`
+	Kategori int    `json:"kategori"`
+	Bahan    []int  `json:"bahan"`
 }

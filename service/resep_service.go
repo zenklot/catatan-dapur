@@ -11,7 +11,9 @@ import (
 
 type ResepService interface {
 	Create(request web.ResepCreateRequest) web.ResepResponse
+	Update(request web.ResepUpdateRequest) web.ResepResponse
 	FindById(resepId string) web.ResepDetailResponse
+	Delete(resepId string)
 	FindAll() []web.ResepResponse
 }
 
@@ -61,6 +63,41 @@ func (service *ResepServiceImpl) Create(request web.ResepCreateRequest) web.Rese
 	}
 
 	resep = service.Repository.Save(tx, resep, resepDetail)
+
+	return web.ResepResponse{}
+}
+
+func (service *ResepServiceImpl) Update(request web.ResepUpdateRequest) web.ResepResponse {
+	if err := service.Validate.Struct(request); err != nil {
+		panic(err)
+	}
+
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	resep := domain.Resep{
+		Id:         request.Id,
+		Resep:      request.Resep,
+		IdKategori: request.Kategori,
+	}
+
+	resepDetail := []domain.ResepDetail{}
+	for _, bahan := range request.Bahan {
+		resepDetail = append(resepDetail, domain.ResepDetail{
+			IdResep: request.Id,
+			IdBahan: bahan,
+		})
+	}
+
+	resep = service.Repository.Update(tx, resep, resepDetail)
 
 	return web.ResepResponse{}
 }
@@ -118,4 +155,20 @@ func (service *ResepServiceImpl) FindById(resepId string) web.ResepDetailRespons
 		Kategori: resep.Kategori.Kategori,
 		Bahan:    bahans,
 	}
+}
+
+func (service *ResepServiceImpl) Delete(resepId string) {
+	tx := service.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		} else {
+			if err := tx.Commit().Error; err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	service.Repository.Delete(tx, resepId)
+
 }
